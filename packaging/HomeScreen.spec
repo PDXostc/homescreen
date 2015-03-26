@@ -29,6 +29,16 @@ make wgtPkg
 %install
 rm -rf %{buildroot}
 make install_obs "OBS=1" DESTDIR="%{?buildroot}"
+mkdir -p %{?buildroot}%{_bindir}
+mkdir -p %{?buildroot}%{_unitdir_user}
+mkdir -p %{?buildroot}%{_unitdir_user}/tizen-user-middleware.target.wants/
+mkdir -p %{?buildroot}/home
+mkdir -p %{?buildroot}/home/app
+install -m 0755 systemd/DNA_launcher.sh %{?buildroot}%{_bindir}
+install -m 0644 systemd/DNA_Homescreen* %{?buildroot}%{_unitdir_user}
+install -m 0755 app_install.sh %{?buildroot}/home/app/
+#install -m 0644 weston-genivi.ini %{?buildroot}/home/app/
+ln -sf %{_unitdir_user}/DNA_Homescreen-launchpad-ready.path %{?buildroot}%{_unitdir_user}/tizen-user-middleware.target.wants/
 
 %post
 su app -c "pkgcmd -i -t wgt -p /opt/usr/apps/.preinstallWidgets/JLRPOCX001.HomeScreen.wgt -q"
@@ -39,4 +49,10 @@ su app -c "pkgcmd -u -n JLRPOCX001 -q"
 %files
 %defattr(-,root,root,-)
 /opt/usr/apps/.preinstallWidgets/JLRPOCX001.HomeScreen.wgt
+/home/app/app_install.sh
+#/home/app/weston-genivi.ini
+%{_bindir}/DNA_launcher.sh
+%{_unitdir_user}/DNA_Homescreen-launchpad-ready.path
+%{_unitdir_user}/tizen-user-middleware.target.wants/DNA_Homescreen-launchpad-ready.path
+%{_unitdir_user}/DNA_Homescreen.service
 
