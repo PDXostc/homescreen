@@ -1,4 +1,4 @@
-PROJECT = DNA_HomeScreen
+PROJECT = JLRPOCX001.HomeScreen
 INSTALL_FILES = images js icon.png index.html
 WRT_FILES = DNA_common css icon.png index.html setup config.xml images js manifest.json README.md
 VERSION := 0.0.1
@@ -10,8 +10,8 @@ ifndef TIZEN_IP
 TIZEN_IP=TizenVTC
 endif
 
-wgtPkg: clean
-	cp -rf ../DNA_common .
+wgtPkg: common
+	#cp -rf ../DNA_common .
 	zip -r $(PROJECT).wgt config.xml css icon.png index.html js images DNA_common
 
 config:
@@ -37,7 +37,7 @@ run.feb1: install.feb1
 install.feb1: deploy
 ifndef OBS
 	-ssh app@$(TIZEN_IP) "pkgcmd -u -n JLRPOCX001.HomeScreen -q"
-	ssh app@$(TIZEN_IP) "pkgcmd -i -t wgt -p /home/app/DNA_HomeScreen.wgt -q"
+	ssh app@$(TIZEN_IP) "pkgcmd -i -t wgt -p /home/app/JLRPOCX001.HomeScreen.wgt -q"
 endif
 
 install: deploy
@@ -61,3 +61,25 @@ clean:
 	-rm $(PROJECT).wgt
 	-rm -rf DNA_common
 
+
+boxcheck: tizen-release
+	ssh root@$(TIZEN_IP) "cat /etc/tizen-release" | diff tizen-release - ; if [ $$? -ne 0 ] ; then tput setaf 1 ; echo "tizen-release version not correct"; tput sgr0 ;exit 1 ; fi
+
+install_obs: 
+	mkdir -p ${DESTDIR}/opt/usr/apps/.preinstallWidgets
+	cp -r JLRPOCX001.HomeScreen.wgt ${DESTDIR}/opt/usr/apps/.preinstallWidgets/
+
+common: /opt/usr/apps/common-apps
+	cp -r /opt/usr/apps/common-apps DNA_common
+
+/opt/usr/apps/common-apps:
+	@echo "Please install Common Assets"
+	exit 1
+
+dev-common: ../common-app
+	cp -rf ../common-app ./DNA_common
+
+../common-app:
+	#@echo "Please checkout Common Assets"
+	#exit 1
+	git clone  git@github.com:PDXostc/common-app.git ../common-app
