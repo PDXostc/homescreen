@@ -10,6 +10,9 @@ ifndef TIZEN_IP
 TIZEN_IP=TizenVTC
 endif
 
+dev: clean dev-common
+	zip -r $(PROJECT).wgt config.xml css icon.png index.html js images DNA_common
+
 wgtPkg: common
 	#cp -rf ../DNA_common .
 	zip -r $(PROJECT).wgt config.xml css icon.png index.html js images DNA_common
@@ -48,7 +51,7 @@ endif
 
 $(PROJECT).wgt : wgt
 
-deploy: wgtPkg
+deploy: dev
 ifndef OBS
 	scp $(PROJECT).wgt app@$(TIZEN_IP):/home/app
 endif
@@ -78,6 +81,7 @@ common: /opt/usr/apps/common-apps
 
 dev-common: ../common-app
 	cp -rf ../common-app ./DNA_common
+	rm -rf DNA_common/.git
 
 ../common-app:
 	#@echo "Please checkout Common Assets"
